@@ -1,0 +1,42 @@
+<header>
+
+  <nav>
+    <a href="{% url 'homepage' %}">
+      <h2>HeVSe</h2>
+    </a>
+
+    <ul>
+
+      <li>
+        <a href="{% url 'homepage' %}">Home</a>
+      </li>
+
+      {% if user.is_authenticated %}
+
+        <li>
+          <a href="{% url 'create' %}">Create Post</a>
+        </li>
+
+        <li>
+          <a href="#">Profile</a>
+        </li>
+
+        <li>
+          <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+          </form>
+        </li>
+
+      {% else %}
+
+        <li>
+          <a href="{% url 'signup' %}">Sign</a>
+        </li>
+
+      {% endif %}
+
+    </ul>
+  </nav>
+
+</header>

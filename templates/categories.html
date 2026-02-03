@@ -1,0 +1,51 @@
+<h1>sdosogvk</h1>
+
+
+{% block content %}
+
+{% include "header.html" %}
+
+<h2>{{ cat_name }}</h2>
+
+<h2>Latest Articles</h2>
+
+{% for article in category_articles %}
+
+  <div>
+
+    {% if article.image %}
+      <img src="{{ article.image.url }}" alt="Post Image">
+    {% endif %}
+
+    <h3>{{ article.title }}</h3>
+
+    <p>
+      By {{ article.author.username }}
+      |
+      {% load tz %}
+      {% timezone "Asia/Kathmandu" %}
+        {{ article.date|date:"g:i A, d M Y" }}
+      {% endtimezone %}
+    </p>
+
+    <p>{{ article.content|truncatewords:30 }}</p>
+
+    <p>
+      Likes: {{ article.total_likes }}
+    </p>
+
+    <a href="{% url 'article_detail' article.pk %}">
+      Read more
+    </a>
+
+  </div>
+
+  <hr>
+
+{% empty %}
+
+  <p>No blog posts available.</p>
+
+{% endfor %}
+
+{% endblock %}

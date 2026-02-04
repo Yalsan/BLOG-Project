@@ -1,0 +1,19 @@
+<h2>{{ category.name }}</h2>
+
+{% for a in category_articles %}
+  <div>
+    <h3>
+      <a
+        href="{% url 'article_detail' a.id %}"
+        hx-get="{% url 'article_detail' a.id %}"
+        hx-target="#main-content"
+        hx-push-url="true"
+      >
+        {{ a.title }}
+      </a>
+    </h3>
+    <p>{{ a.content|truncatewords:30 }}</p>
+  </div>
+{% empty %}
+  <p>No posts.</p>
+{% endfor %}

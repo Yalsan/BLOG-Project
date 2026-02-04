@@ -1,0 +1,21 @@
+
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="{% url 'homepage' %}" hx-get="{% url 'homepage' %}" hx-target="#main-content" hx-push-url="true">Home</a>
+    <a href="{% url 'contact' %}" hx-get="{% url 'contact' %}" hx-target="#main-content" hx-push-url="true">Contact</a>
+  </div>
+
+  <div class="nav-right">
+    {% if user.is_authenticated %}
+      <a href="{% url 'post_create' %}" hx-get="{% url 'post_create' %}" hx-target="#main-content" hx-push-url="true">Create</a>
+
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">Logout</button>
+      </form>
+    {% else %}
+      <a href="{% url 'signin' %}" hx-get="{% url 'signin' %}" hx-target="#main-content" hx-push-url="true">Login</a>
+      <a href="{% url 'signup' %}" hx-get="{% url 'signup' %}" hx-target="#main-content" hx-push-url="true" class="signup-btn">Sign up</a>
+    {% endif %}
+  </div>
+</nav>

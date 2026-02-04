@@ -1,0 +1,26 @@
+<h2>{{ article.title }}</h2>
+<p>{{ article.content }}</p>
+
+{% if article.image %}
+  <img src="{{ article.image.url }}" style="max-width:100%">
+{% endif %}
+
+{% if is_author %}
+  <a
+    href="{% url 'update' article.id %}"
+    hx-get="{% url 'update' article.id %}"
+    hx-target="#main-content"
+    hx-push-url="true"
+  >
+    Edit
+  </a>
+
+  <a
+    href="{% url 'post_delete' article.id %}"
+    hx-get="{% url 'post_delete' article.id %}"
+    hx-target="#main-content"
+    hx-push-url="true"
+  >
+    Delete
+  </a>
+{% endif %}

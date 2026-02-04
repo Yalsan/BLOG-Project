@@ -1,52 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Sign Up</title>
-</head>
-<body>
 
-{% include "header.html" %}
 
-<form action="{% url 'signup' %}" method="post">
-  {% csrf_token %}
-
-  <h3>Sign Up</h3>
-
-  {% if messages %}
-    {% for message in messages %}
-      <p>{{ message }}</p>
-    {% endfor %}
-  {% endif %}
-
-  <label for="username">Username</label>
-  <input type="text" name="username" id="username" required>
-
-  <br><br>
-
-  <label for="email">Email</label>
-  <input type="email" name="email" id="email" required>
-
-  <br><br>
-
-  <label for="password">Password</label>
-  <input type="password" name="password" id="password" required>
-
-  <br><br>
-
-  <label for="password2">Confirm Password</label>
-  <input type="password" name="password2" id="password2" required>
-
-  <br><br>
-
-  <button type="submit">Sign Up</button>
-
-  <p>
-    Already have an account?
-    <a href="{% url 'signin' %}">Login</a>
-  </p>
-
-</form>
-
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Sign up{% endblock %}
+{% block content %}
+  {% include "partials/signup_content.html" %}
+{% endblock %}

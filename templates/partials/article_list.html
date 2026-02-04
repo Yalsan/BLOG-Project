@@ -1,0 +1,26 @@
+{% for a in articles %}
+  <div>
+    <h3>
+      <a
+        href="{% url 'article_detail' a.id %}"
+        hx-get="{% url 'article_detail' a.id %}"
+        hx-target="#main-content"
+        hx-push-url="true"
+      >
+        {{ a.title }}
+      </a>
+    </h3>
+    <p>{{ a.content|truncatewords:30 }}</p>
+
+    <p>
+      <a
+        href="{% url 'categoryview' a.category.name %}"
+        hx-get="{% url 'categoryview' a.category.name %}"
+        hx-target="#main-content"
+        hx-push-url="true"
+      >
+        {{ a.category.name }}
+      </a>
+    </p>
+  </div>
+{% endfor %}

@@ -1,29 +1,66 @@
-
-from django.shortcuts import render,redirect
-from .models import *
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponseForbidden, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
-from .forms import ArticleForm
-from django.contrib.auth import authenticate, login,logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib import auth
+from django.core.paginator import Paginator
+
+from .models import Article, Category, Contact
+from .forms import ArticleForm
+
+
+def is_htmx(request):
+    return request.headers.get("HX-Request") == "true"
+
 
 def Homepage(request):
-    articles = Article.objects.all()
-    return render(request, 'index.html', {'articles':articles})
+    articles_qs = Article.objects.order_by("-date")
+    paginator = Paginator(articles_qs, 5)
+    page_obj = paginator.get_page(1)
+
+    ctx = {"articles": page_obj}
+
+    if is_htmx(request):
+        return render(request, "partials/home_content.html", ctx)
+
+    return render(request, "index.html", ctx)
+
 
 def categoryview(request, cat_name):
     category = get_object_or_404(Category, name=cat_name)
-    category_articles = Article.objects.filter(category=category)
-    return render(request, 'categories.html', {
-        'category': category,
-        'category_articles': category_articles,
-    })
+    category_articles = Article.objects.filter(category=category).order_by("-date")
 
+    ctx = {"category": category, "category_articles": category_articles}
+
+    if is_htmx(request):
+        return render(request, "partials/categories_content.html", ctx)
+
+    return render(request, "categories.html", ctx)
+
+
+def contact_page(request):
+    if is_htmx(request):
+        return render(request, "partials/contact_content.html")
+    return render(request, "contact.html")
+
+
+def article_detail(request, id):
+    article = get_object_or_404(Article, id=id)
+    is_author = request.user.is_authenticated and request.user == article.author
+    form = ArticleForm(instance=article) if is_author else None
+
+    ctx = {
+        "article": article,
+        "form": form,
+        "is_author": is_author,
+    }
+
+    if is_htmx(request):
+        return render(request, "partials/article_detail_content.html", ctx)
+
+    return render(request, "article_details.html", ctx)
 
 
 @login_required
@@ -37,10 +74,10 @@ def post_create(request):
         image = request.FILES.get("image")
 
         if not title or not content or not category_id:
-            return render(request, "create.html", {
-                "categories": categories,
-                "error": "Fill all fields",
-            })
+            ctx = {"categories": categories, "error": "Fill all fields"}
+            if is_htmx(request):
+                return render(request, "partials/create_content.html", ctx)
+            return render(request, "create.html", ctx)
 
         category = get_object_or_404(Category, id=category_id)
 
@@ -52,10 +89,18 @@ def post_create(request):
             image=image,
         )
 
+        if is_htmx(request):
+            articles_qs = Article.objects.order_by("-date")
+            paginator = Paginator(articles_qs, 5)
+            page_obj = paginator.get_page(1)
+            return render(request, "partials/home_content.html", {"articles": page_obj})
+
         return redirect("homepage")
 
-    return render(request, "create.html", {"categories": categories})
-
+    ctx = {"categories": categories}
+    if is_htmx(request):
+        return render(request, "partials/create_content.html", ctx)
+    return render(request, "create.html", ctx)
 
 
 @login_required
@@ -64,8 +109,8 @@ def update(request, id):
     categories = Category.objects.all()
 
     if request.method == "POST":
-        article.title = request.POST.get("title", "").strip()
-        article.content = request.POST.get("content", "").strip()
+        article.title = (request.POST.get("title") or "").strip()
+        article.content = (request.POST.get("content") or "").strip()
 
         category_id = request.POST.get("category")
         if category_id:
@@ -83,96 +128,152 @@ def update(request, id):
             article.image = new_image
 
         article.save()
-        return redirect("homepage")
 
-    return render(request, "edit_page.html", {
-        "article": article,
-        "categories": categories,
-    })
+        is_author = request.user == article.author
+        form = ArticleForm(instance=article) if is_author else None
+        ctx = {"article": article, "form": form, "is_author": is_author}
+
+        if is_htmx(request):
+            return render(request, "partials/article_detail_content.html", ctx)
+
+        return redirect("article_detail", id=article.id)
+
+    ctx = {"article": article, "categories": categories}
+    if is_htmx(request):
+        return render(request, "partials/edit_content.html", ctx)
+    return render(request, "edit_page.html", ctx)
+
+
 def post_delete(request, id):
     post = get_object_or_404(Article, id=id)
-    if request.method == 'POST':
-        post.delete()
-        return redirect('homepage')
-    return render(request, 'delete.html', {'post': post})
-
-
-
-def article_detail(request, id):
-    article = get_object_or_404(Article, id=id)
-    is_author = request.user.is_authenticated and request.user == article.author
 
     if request.method == "POST":
-        if is_author and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            if request.POST.get('delete'):
-                article.delete()
-                return JsonResponse({'status': 'deleted'})
+        post.delete()
 
-            form = ArticleForm(request.POST, instance=article)
-            if form.is_valid():
-                form.save()
-                return JsonResponse({'status': 'success'})
-            else:
-                return JsonResponse({'status': 'error', 'errors': form.errors})
+        if is_htmx(request):
+            articles_qs = Article.objects.order_by("-date")
+            paginator = Paginator(articles_qs, 5)
+            page_obj = paginator.get_page(1)
+            return render(request, "partials/home_content.html", {"articles": page_obj})
 
-    else:
-        form = ArticleForm(instance=article) if is_author else None
+        return redirect("homepage")
 
-    return render(request, 'article_details.html', {
-        'article': article,
-        'form': form,
-        'is_author': is_author,
-    })
-
-
+    ctx = {"post": post}
+    if is_htmx(request):
+        return render(request, "partials/delete_content.html", ctx)
+    return render(request, "delete.html", ctx)
 
 
 def sign_up(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
-        password2 = request.POST['password2']
+    if request.method == "POST":
+        username = (request.POST.get("username") or "").strip()
+        email = (request.POST.get("email") or "").strip()
+        password = request.POST.get("password") or ""
+        password2 = request.POST.get("password2") or ""
 
-        if password == password2:
-            if User.objects.filter(username=username).exists():
-                messages.info(request, "Username already exists.")
-                return redirect('signup')
-            elif User.objects.filter(email=email).exists():
-                messages.info(request, "Email already exists.")
-                return redirect('signup')
-            else:
-                user = User.objects.create_user(username=username, email=email, password=password)
-                user.save()
-
-                login(request, user)
-                messages.success(request, f"Welcome, {username}!")
-                return redirect('homepage') 
-        else:
+        if password != password2:
+            ctx = {"error": "Passwords do not match"}
+            if is_htmx(request):
+                return render(request, "partials/signup_content.html", ctx)
             messages.error(request, "Passwords do not match.")
-            return redirect('homepage')
+            return redirect("signup")
 
+        if User.objects.filter(username=username).exists():
+            ctx = {"error": "Username already exists"}
+            if is_htmx(request):
+                return render(request, "partials/signup_content.html", ctx)
+            messages.info(request, "Username already exists.")
+            return redirect("signup")
+
+        if User.objects.filter(email=email).exists():
+            ctx = {"error": "Email already exists"}
+            if is_htmx(request):
+                return render(request, "partials/signup_content.html", ctx)
+            messages.info(request, "Email already exists.")
+            return redirect("signup")
+
+        user = User.objects.create_user(username=username, email=email, password=password)
+        login(request, user)
+
+        if is_htmx(request):
+            articles_qs = Article.objects.order_by("-date")
+            paginator = Paginator(articles_qs, 5)
+            page_obj = paginator.get_page(1)
+            return render(request, "partials/home_content.html", {"articles": page_obj})
+
+        return redirect("homepage")
+
+    if is_htmx(request):
+        return render(request, "partials/signup_content.html")
     return render(request, "sign_up.html")
 
+
 def sign_in(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request,username=username,password=password)
+    if request.method == "POST":
+        username = (request.POST.get("username") or "").strip()
+        password = request.POST.get("password") or ""
+
+        user = authenticate(request, username=username, password=password)
         if user is not None:
-            auth.login(request,user)
+            login(request, user)
+
+            if is_htmx(request):
+                articles_qs = Article.objects.order_by("-date")
+                paginator = Paginator(articles_qs, 5)
+                page_obj = paginator.get_page(1)
+                return render(request, "partials/home_content.html", {"articles": page_obj})
+
             return redirect("homepage")
-        else:
-            messages.info(request,'Username or Password is incorrect')
-            return redirect("signin")
-            
-    return render(request,"login_page.html")
+
+        ctx = {"error": "Username or Password is incorrect"}
+        if is_htmx(request):
+            return render(request, "partials/signin_content.html", ctx)
+        messages.info(request, "Username or Password is incorrect")
+        return redirect("signin")
+
+    if is_htmx(request):
+        return render(request, "partials/signin_content.html")
+    return render(request, "login_page.html")
+
 
 @require_POST
 def log_out(request):
     logout(request)
+
+    if is_htmx(request):
+        articles_qs = Article.objects.order_by("-date")
+        paginator = Paginator(articles_qs, 5)
+        page_obj = paginator.get_page(1)
+        return render(request, "partials/home_content.html", {"articles": page_obj})
+
     messages.success(request, "You have been logged out.")
-    return redirect('homepage')
+    return redirect("homepage")
 
 
-    
+def load_more_articles(request):
+    page_number = request.GET.get("page", 1)
+    articles_qs = Article.objects.order_by("-date")
+    paginator = Paginator(articles_qs, 5)
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "partials/article_list.html", {"articles": page_obj})
+
+
+@require_POST
+def contact_htmx(request):
+    name = (request.POST.get("name") or "").strip()
+    email = (request.POST.get("email") or "").strip()
+    subject = (request.POST.get("subject") or "").strip()
+    message = (request.POST.get("message") or "").strip()
+
+    if not name or not email or not message:
+        return HttpResponse("<p>Fill required fields.</p>")
+
+    Contact.objects.create(
+        name=name,
+        email=email,
+        subject=subject,
+        message=message
+    )
+
+    return HttpResponse("<p>Message sent successfully!</p>")

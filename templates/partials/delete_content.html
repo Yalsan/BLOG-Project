@@ -1,0 +1,13 @@
+<h2>Delete post</h2>
+<p>Delete "{{ post.title }}"</p>
+
+<form
+  method="post"
+  action="{% url 'post_delete' post.id %}"
+  hx-post="{% url 'post_delete' post.id %}"
+  hx-target="#main-content"
+  hx-swap="innerHTML"
+>
+  {% csrf_token %}
+  <button type="submit">Confirm delete</button>
+</form>

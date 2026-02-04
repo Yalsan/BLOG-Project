@@ -20,3 +20,12 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+
+
+
+
+class Contact(models.Model):
+    name = models.CharField(max_length=600)
+    email = models.EmailField(max_length=600)
+    subject = models.CharField(max_length=1000)
+    message = models.CharField(max_length=10000, blank=True)

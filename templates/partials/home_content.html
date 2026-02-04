@@ -1,0 +1,13 @@
+<div id="articles">
+  {% include "partials/article_list.html" %}
+</div>
+
+{% if articles.has_next %}
+  <button
+    hx-get="{% url 'load_more_articles' %}?page={{ articles.next_page_number }}"
+    hx-target="#articles"
+    hx-swap="beforeend"
+  >
+    Load more
+  </button>
+{% endif %}

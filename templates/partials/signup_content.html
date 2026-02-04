@@ -1,0 +1,18 @@
+<h2>Sign up</h2>
+
+{% if error %}<p>{{ error }}</p>{% endif %}
+
+<form
+  method="post"
+  action="{% url 'signup' %}"
+  hx-post="{% url 'signup' %}"
+  hx-target="#main-content"
+  hx-swap="innerHTML"
+>
+  {% csrf_token %}
+  <input name="username" placeholder="Username">
+  <input name="email" placeholder="Email">
+  <input name="password" type="password" placeholder="Password">
+  <input name="password2" type="password" placeholder="Confirm password">
+  <button type="submit">Create account</button>
+</form>

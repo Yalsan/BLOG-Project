@@ -1,42 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>{{ article.title }}</title>
-</head>
-<body>
 
-{% include "header.html" %}
-
-<div>
-
-  {% if article.image %}
-    <img src="{{ article.image.url }}" alt="Post Image" width="100%">
-  {% endif %}
-
-  <h1>{{ article.title }}</h1>
-
-  <p>{{ article.content }}</p>
-
-  <p>
-    <strong>Category:</strong> {{ article.category.name }}
-  </p>
-
-  <p>
-    <strong>Written by:</strong> {{ article.author.username }}
-  </p>
-
-  <p>
-    {% load tz %}
-    {% timezone "Asia/Kathmandu" %}
-      {{ article.date|date:"g:i A, d M Y" }}
-    {% endtimezone %}
-  </p>
-
-  {% if user == article.author %}
-    <a href="{% url 'update' article.id %}">Edit</a>
- {% endif %}
-    <form action="{% url 'post_delete' article.id %}" method="post" style="display:inline;">
-      {% csrf_token %}
-      <button type="submit">Delete</button>
-     <a href="{% url 'homepage' %}">Back</a>
+{% extends "base.html" %}
+{% block title %}Post{% endblock %}
+{% block content %}
+  {% include "partials/article_detail_content.html" %}
+{% endblock %}

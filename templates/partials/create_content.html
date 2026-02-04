@@ -1,0 +1,29 @@
+<h2>Create post</h2>
+
+{% if error %}<p>{{ error }}</p>{% endif %}
+
+<form
+  method="post"
+  enctype="multipart/form-data"
+  action="{% url 'post_create' %}"
+  hx-post="{% url 'post_create' %}"
+  hx-target="#main-content"
+  hx-swap="innerHTML"
+>
+  {% csrf_token %}
+
+  <input name="title" placeholder="Title">
+
+  <textarea name="content" placeholder="Content"></textarea>
+
+  <select name="category">
+    <option value="">Select category</option>
+    {% for c in categories %}
+      <option value="{{ c.id }}">{{ c.name }}</option>
+    {% endfor %}
+  </select>
+
+  <input type="file" name="image">
+
+  <button type="submit">Post</button>
+</form>

@@ -1,0 +1,33 @@
+<h2>Edit post</h2>
+
+<form
+  method="post"
+  enctype="multipart/form-data"
+  action="{% url 'update' article.id %}"
+  hx-post="{% url 'update' article.id %}"
+  hx-target="#main-content"
+  hx-swap="innerHTML"
+>
+  {% csrf_token %}
+
+  <input name="title" value="{{ article.title }}">
+
+  <textarea name="content">{{ article.content }}</textarea>
+
+  <select name="category">
+    {% for c in categories %}
+      <option value="{{ c.id }}" {% if article.category.id == c.id %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+
+  {% if article.image %}
+    <img src="{{ article.image.url }}" style="max-width:200px">
+    <label>
+      <input type="checkbox" name="remove_image" value="1"> Remove image
+    </label>
+  {% endif %}
+
+  <input type="file" name="image">
+
+  <button type="submit">Save</button>
+</form>

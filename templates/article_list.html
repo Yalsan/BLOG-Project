@@ -1,0 +1,36 @@
+{% load tz %}
+
+{% for article in articles %}
+
+  <div>
+
+    {% if article.image %}
+      <img src="{{ article.image.url }}" width="300">
+    {% endif %}
+
+    <h3>{{ article.title }}</h3>
+
+    <p>
+      Category:
+      <a href="{% url 'category' article.category.name %}">
+        {{ article.category }}
+      </a>
+    </p>
+
+    <p>
+      By {{ article.author.username }}
+      |
+      {% timezone "Asia/Kathmandu" %}
+        {{ article.date|date:"g:i A, d M Y" }}
+      {% endtimezone %}
+    </p>
+
+    <p>{{ article.content|truncatewords:30 }}</p>
+
+    <a href="{% url 'article_detail' article.id %}">Read more</a>
+
+  </div>
+
+  <hr>
+
+{% endfor %}

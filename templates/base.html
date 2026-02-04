@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}HeVSe{% endblock %}</title>
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+
+  <script>
+    document.body.addEventListener("htmx:configRequest", function (e) {
+      const token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      e.detail.headers["X-CSRFToken"] = token;
+    });
+  </script>
+</head>
+<body>
+
+  {% include "navbar.html" %}
+
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

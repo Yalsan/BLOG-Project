@@ -1,29 +1,108 @@
-<h2>Create post</h2>
+<div class="container-fluid px-0">
 
-{% if error %}<p>{{ error }}</p>{% endif %}
+  <div class="py-4 border-bottom">
+    <h2 class="text-center fw-bold mb-0">
+      Create Post
+    </h2>
+  </div>
 
-<form
-  method="post"
-  enctype="multipart/form-data"
-  action="{% url 'post_create' %}"
-  hx-post="{% url 'post_create' %}"
-  hx-target="#main-content"
-  hx-swap="innerHTML"
->
-  {% csrf_token %}
+  <div class="container py-5">
 
-  <input name="title" placeholder="Title">
+    {% if error %}
+      <p class="text-center text-danger mb-4">
+        {{ error }}
+      </p>
+    {% endif %}
 
-  <textarea name="content" placeholder="Content"></textarea>
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      action="{% url 'post_create' %}"
+      hx-post="{% url 'post_create' %}"
+      hx-target="#main-content"
+      hx-swap="innerHTML"
+    >
+      {% csrf_token %}
 
-  <select name="category">
-    <option value="">Select category</option>
-    {% for c in categories %}
-      <option value="{{ c.id }}">{{ c.name }}</option>
-    {% endfor %}
-  </select>
+      <div class="mb-4">
+        <label class="form-label fw-bold fs-5">
+          Title
+        </label>
+        <input
+          type="text"
+          name="title"
+          class="form-control form-control-lg"
+          placeholder="Enter post title"
+          required
+        >
+      </div>
 
-  <input type="file" name="image">
+      <div class="mb-4">
+        <label class="form-label fw-bold fs-5">
+          Content
+        </label>
+        <textarea
+          name="content"
+          rows="10"
+          class="form-control"
+          placeholder="Write your post content here..."
+          required
+        ></textarea>
+      </div>
 
-  <button type="submit">Post</button>
-</form>
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">
+            Category
+          </label>
+          <select
+            name="category"
+            class="form-select"
+            required
+          >
+            <option value="">Select category</option>
+            {% for c in categories %}
+              <option value="{{ c.id }}">
+                {{ c.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">
+            Upload Image
+          </label>
+          <input
+            type="file"
+            name="image"
+            class="form-control"
+          >
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-5">
+
+        <a
+          href="{% url 'homepage' %}"
+          hx-get="{% url 'homepage' %}"
+          hx-target="#main-content"
+          hx-push-url="true"
+          class="btn btn-outline-dark"
+        >
+          Back
+        </a>
+
+        <button
+          type="submit"
+          class="btn btn-dark fw-bold px-5"
+        >
+          Publish Post
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+</div>

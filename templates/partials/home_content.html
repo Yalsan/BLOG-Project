@@ -1,13 +1,69 @@
-<div id="articles">
-  {% include "partials/article_list.html" %}
-</div>
+<section class="hero">
+  <div class="container hero-grid">
 
-{% if articles.has_next %}
-  <button
-    hx-get="{% url 'load_more_articles' %}?page={{ articles.next_page_number }}"
-    hx-target="#articles"
-    hx-swap="beforeend"
-  >
-    Load more
-  </button>
-{% endif %}
+    <div class="hero-text">
+      <h1>BLOG WEBSITE</h1>
+
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      </p>
+
+      <a
+        href="{% url 'article_detail' articles.0.id %}"
+        hx-get="{% url 'article_detail' articles.0.id %}"
+        hx-target="#main-content"
+        hx-push-url="true"
+        class="btn"
+      >
+        Read post
+      </a>
+
+      <div class="meta">
+        <div class="avatar"></div>
+        <span>
+          <strong>{{ articles.0.author.username }}</strong>
+          ·
+          {{ articles.0.date|date:"M d, Y" }}
+        </span>
+      </div>
+    </div>
+
+    <div class="hero-image">
+      {% if articles.0.image %}
+        <img src="{{ articles.0.image.url }}" alt="">
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="posts">
+  <div class="container cards">
+
+    {% for article in articles|slice:"1:4" %}
+      <article class="card">
+        {% if article.image %}
+          <img src="{{ article.image.url }}" alt="">
+        {% endif %}
+
+        <h3>{{ article.title }}</h3>
+
+        <p>{{ article.content|truncatewords:18 }}</p>
+
+        <a
+          href="{% url 'article_detail' article.id %}"
+          hx-get="{% url 'article_detail' article.id %}"
+          hx-target="#main-content"
+          hx-push-url="true"
+          class="btn-sm"
+        >
+          Read post
+        </a>
+      </article>
+    {% endfor %}
+
+  </div>
+</section>

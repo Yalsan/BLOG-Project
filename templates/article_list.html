@@ -1,36 +1,22 @@
-{% load tz %}
+<div class="container my-5">
 
-{% for article in articles %}
+  <h2 class="text-center mb-5">Latest Articles</h2>
 
-  <div>
-
-    {% if article.image %}
-      <img src="{{ article.image.url }}" width="300">
-    {% endif %}
-
-    <h3>{{ article.title }}</h3>
-
-    <p>
-      Category:
-      <a href="{% url 'category' article.category.name %}">
-        {{ article.category }}
-      </a>
-    </p>
-
-    <p>
-      By {{ article.author.username }}
-      |
-      {% timezone "Asia/Kathmandu" %}
-        {{ article.date|date:"g:i A, d M Y" }}
-      {% endtimezone %}
-    </p>
-
-    <p>{{ article.content|truncatewords:30 }}</p>
-
-    <a href="{% url 'article_detail' article.id %}">Read more</a>
-
+  <div id="articles">
+    {% include "partials/article_list.html" %}
   </div>
 
-  <hr>
+  {% if articles.has_next %}
+    <div class="text-center mt-4">
+      <button
+        class="btn btn-outline-primary"
+        hx-get="{% url 'load_more_articles' %}?page={{ articles.next_page_number }}"
+        hx-target="#articles"
+        hx-swap="beforeend"
+      >
+        Load more
+      </button>
+    </div>
+  {% endif %}
 
-{% endfor %}
+</div>

@@ -1,33 +1,128 @@
-<h2>Edit post</h2>
+<div class="container-fluid px-0">
 
-<form
-  method="post"
-  enctype="multipart/form-data"
-  action="{% url 'update' article.id %}"
-  hx-post="{% url 'update' article.id %}"
-  hx-target="#main-content"
-  hx-swap="innerHTML"
->
-  {% csrf_token %}
+  <div class="py-4 border-bottom">
+    <h2 class="text-center fw-bold mb-0">
+      Edit Post
+    </h2>
+  </div>
 
-  <input name="title" value="{{ article.title }}">
+  <div class="container py-5">
 
-  <textarea name="content">{{ article.content }}</textarea>
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      action="{% url 'update' article.id %}"
+      hx-post="{% url 'update' article.id %}"
+      hx-target="#main-content"
+      hx-swap="innerHTML"
+    >
+      {% csrf_token %}
 
-  <select name="category">
-    {% for c in categories %}
-      <option value="{{ c.id }}" {% if article.category.id == c.id %}selected{% endif %}>{{ c.name }}</option>
-    {% endfor %}
-  </select>
+      <div class="mb-4">
+        <label class="form-label fw-bold fs-5">
+          Title
+        </label>
+        <input
+          type="text"
+          name="title"
+          value="{{ article.title }}"
+          class="form-control form-control-lg"
+          required
+        >
+      </div>
 
-  {% if article.image %}
-    <img src="{{ article.image.url }}" style="max-width:200px">
-    <label>
-      <input type="checkbox" name="remove_image" value="1"> Remove image
-    </label>
-  {% endif %}
+      <div class="mb-4">
+        <label class="form-label fw-bold fs-5">
+          Content
+        </label>
+        <textarea
+          name="content"
+          rows="10"
+          class="form-control"
+          required
+        >{{ article.content }}</textarea>
+      </div>
 
-  <input type="file" name="image">
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">
+            Category
+          </label>
+          <select
+            name="category"
+            class="form-select"
+            required
+          >
+            {% for c in categories %}
+              <option
+                value="{{ c.id }}"
+                {% if article.category.id == c.id %}selected{% endif %}
+              >
+                {{ c.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
 
-  <button type="submit">Save</button>
-</form>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">
+            Change Image
+          </label>
+          <input
+            type="file"
+            name="image"
+            class="form-control"
+          >
+        </div>
+      </div>
+
+      {% if article.image %}
+        <div class="mb-4">
+          <p class="fw-bold mb-2">
+            Current Image
+          </p>
+
+          <img
+            src="{{ article.image.url }}"
+            class="img-fluid rounded mb-2"
+            style="max-height: 300px;"
+          >
+
+          <div class="form-check mt-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              name="remove_image"
+              value="1"
+              id="removeImage"
+            >
+            <label class="form-check-label" for="removeImage">
+              Remove current image
+            </label>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="d-flex justify-content-end gap-3 mt-5">
+        <a
+          href="{% url 'article_detail' article.id %}"
+          hx-get="{% url 'article_detail' article.id %}"
+          hx-target="#main-content"
+          hx-push-url="true"
+          class="btn btn-outline-dark"
+        >
+          Cancel
+        </a>
+
+        <button
+          type="submit"
+          class="btn btn-dark fw-bold px-4"
+        >
+          Save Changes
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>

@@ -1,18 +1,102 @@
-<h2>Contact</h2>
+<div class="container-fluid px-0">
 
-<form
-  method="post"
-  action="{% url 'contact_htmx' %}"
-  hx-post="{% url 'contact_htmx' %}"
-  hx-target="#contact-result"
-  hx-swap="innerHTML"
->
-  {% csrf_token %}
-  <input name="name" placeholder="Name">
-  <input name="email" placeholder="Email">
-  <input name="subject" placeholder="Subject">
-  <textarea name="message" placeholder="Message"></textarea>
-  <button type="submit">Send</button>
-</form>
+  <div class="py-4 border-bottom">
+    <h2 class="text-center fw-bold mb-0">
+      Contact
+    </h2>
+  </div>
 
-<div id="contact-result"></div>
+  <div class="container py-5">
+
+    <form
+      method="post"
+      action="{% url 'contact_htmx' %}"
+      hx-post="{% url 'contact_htmx' %}"
+      hx-target="#contact-result"
+      hx-swap="innerHTML"
+    >
+      {% csrf_token %}
+
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label class="form-label fw-bold fs-6">
+            Name
+          </label>
+          <input
+            type="text"
+            name="name"
+            class="form-control form-control-lg"
+            placeholder="Your name"
+            required
+          >
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold fs-6">
+            Email
+          </label>
+          <input
+            type="email"
+            name="email"
+            class="form-control form-control-lg"
+            placeholder="Your email"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-bold fs-6">
+          Subject
+        </label>
+        <input
+          type="text"
+          name="subject"
+          class="form-control form-control-lg"
+          placeholder="Subject"
+        >
+      </div>
+
+      <div class="mb-5">
+        <label class="form-label fw-bold fs-6">
+          Message
+        </label>
+        <textarea
+          name="message"
+          rows="8"
+          class="form-control"
+          placeholder="Write your message here..."
+          required
+        ></textarea>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center">
+
+        <a
+          href="{% url 'homepage' %}"
+          hx-get="{% url 'homepage' %}"
+          hx-target="#main-content"
+          hx-push-url="true"
+          class="btn btn-outline-dark"
+        >
+          Back
+        </a>
+
+        <button
+          type="submit"
+          class="btn btn-dark fw-bold px-5"
+        >
+          Send Message
+        </button>
+
+      </div>
+
+    </form>
+
+    <div
+      id="contact-result"
+      class="mt-4 text-center"
+    ></div>
+
+  </div>
+</div>

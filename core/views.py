@@ -1,12 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-
 from .models import Article, Category, Contact
 from .forms import ArticleForm
 
